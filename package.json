@@ -1,0 +1,79 @@
+{
+  "name": "green-refactor-mistral",
+  "displayName": "green-refactor-mistral",
+  "description": "green IT linter powered by Mistral's tools",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "green-refactor-sidebar",
+          "title": "Green Refactor",
+          "icon": "resources/leaf.svg"
+        }
+      ]
+    },
+    "views": {
+      "green-refactor-sidebar": [
+        {
+          "id": "greenRefactorView",
+          "name": "Actions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "green-refactor.start",
+        "title": "🌿 Green Refactor (Mistral)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "green-refactor.start",
+          "group": "modification"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Green Refactor",
+      "properties": {
+        "greenRefactor.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Ta clé API Mistral (console.mistral.ai)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.107.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "@mistralai/mistralai": "^1.14.0"
+  }
+}
