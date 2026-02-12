@@ -1,4 +1,6 @@
 import { Mistral } from '@mistralai/mistralai';
+import * as vscode from 'vscode';
+import { GreenReportPanel } from './GreenReportPanel';
 
 export interface GreenAnalysis {
     score_original: number;
@@ -13,12 +15,14 @@ export interface GreenAnalysis {
 
 export class GreenAnalysisService {
     private client: Mistral;
+    private context: vscode.ExtensionContext;
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string, context: vscode.ExtensionContext) {
         this.client = new Mistral({ apiKey: apiKey });
+        this.context = context;
     }
 
-    async analyzeCode(code: string): Promise<GreenAnalysis> {
+    async analyzeCode(code: string, editor: vscode.TextEditor, selection: vscode.Range): Promise<GreenAnalysis> {
         try {
             const chatResponse = await this.client.chat.complete({
                 model: 'mistral-large-latest',
@@ -80,6 +84,13 @@ export class GreenAnalysisService {
             let analysis: any;
             try {
                 analysis = JSON.parse(content as string);
+
+                GreenReportPanel.createOrShow(
+                    this.context.extensionUri,
+                    analysis,
+                    editor,
+                    selection
+                );
             } catch (e) {
                 console.error("JSON Parse Error. Raw content:", content);
                 throw new Error("Failed to parse Mistral response as JSON.");

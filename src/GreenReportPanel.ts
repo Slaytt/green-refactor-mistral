@@ -3,34 +3,72 @@ import { GreenAnalysis } from './GreenAnalysisService';
 
 export class GreenReportPanel {
     public static currentPanel: GreenReportPanel | undefined;
+    public static readonly viewType = 'greenReport';
+
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, analysis: GreenAnalysis, editor: vscode.TextEditor) {
+    private static _currentEditor: vscode.TextEditor | undefined;
+    private static _currentRange: vscode.Range | undefined;
+
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, analysis: any) {
         this._panel = panel;
         this._extensionUri = extensionUri;
 
-        this._update(analysis); // Set initial content
+        this._update(analysis);
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-        // Handle messages from the webview
         this._panel.webview.onDidReceiveMessage(
-            async message => {
+            async (message) => {
                 switch (message.command) {
                     case 'showDiff':
-                        const doc = await vscode.workspace.openTextDocument({
-                            content: analysis.optimized_code,
-                            language: editor.document.languageId
-                        });
-                        vscode.commands.executeCommand(
-                            'vscode.diff',
-                            editor.document.uri,
-                            doc.uri,
-                            'Original ↔️ Green Optimized 🌿'
-                        );
-                        this.dispose(); // Close panel after showing diff
+                        if (GreenReportPanel._currentEditor) {
+                            const doc = await vscode.workspace.openTextDocument({
+                                content: message.code,
+                                language: GreenReportPanel._currentEditor.document.languageId
+                            });
+
+                            // --- CHANGEMENT ICI ---
+                            // On ouvre le Diff dans la colonne 1 (à la place du code original)
+                            // tout en gardant le rapport visible dans la colonne 2.
+                            await vscode.commands.executeCommand(
+                                'vscode.diff',
+                                GreenReportPanel._currentEditor.document.uri,
+                                doc.uri,
+                                'Original ↔️ Green Optimized 🌿',
+                                {
+                                    viewColumn: vscode.ViewColumn.One,
+                                    preserveFocus: false // On donne le focus au diff pour scroller
+                                }
+                            );
+                        }
+                        return;
+
+                    case 'applyFix':
+                        if (GreenReportPanel._currentEditor && GreenReportPanel._currentRange) {
+                            const editor = GreenReportPanel._currentEditor;
+                            const range = GreenReportPanel._currentRange;
+                            const newCode = message.code;
+
+                            // On vérifie si l'éditeur est toujours ouvert, sinon on essaie de le rouvrir
+                            const targetDoc = editor.document;
+                            const edit = new vscode.WorkspaceEdit();
+                            edit.replace(targetDoc.uri, range, newCode);
+
+                            const success = await vscode.workspace.applyEdit(edit);
+
+                            if (success) {
+                                vscode.window.showInformationMessage("🌿 Code optimisé appliqué !");
+                                this.dispose();
+
+                                // On ferme le Diff s'il est ouvert (optionnel, pour nettoyer)
+                                await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+                            } else {
+                                vscode.window.showErrorMessage("Erreur lors de l'application du correctif.");
+                            }
+                        }
                         return;
                 }
             },
@@ -39,28 +77,38 @@ export class GreenReportPanel {
         );
     }
 
-    public static createOrShow(extensionUri: vscode.Uri, analysis: GreenAnalysis, editor: vscode.TextEditor) {
-        const column = vscode.ViewColumn.Beside;
+    public static createOrShow(
+        extensionUri: vscode.Uri,
+        analysis: any,
+        editor: vscode.TextEditor,
+        range: vscode.Range
+    ) {
+        GreenReportPanel._currentEditor = editor;
+        GreenReportPanel._currentRange = range;
 
-        // If we already have a panel, show it.
+        // --- CHANGEMENT ICI ---
+        // On veut ouvrir le rapport "à côté" du code actuel, pas par dessus.
+        const column = vscode.ViewColumn.Two;
+
         if (GreenReportPanel.currentPanel) {
             GreenReportPanel.currentPanel._panel.reveal(column);
             GreenReportPanel.currentPanel._update(analysis);
             return;
         }
 
-        // Otherwise, create a new panel.
         const panel = vscode.window.createWebviewPanel(
-            'greenReport',
+            GreenReportPanel.viewType,
             '🌿 Green IT Report',
-            column,
+            column, // On force la colonne 2
             {
                 enableScripts: true,
+                // On garde le panel visible même quand on clique ailleurs
+                retainContextWhenHidden: true,
                 localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'resources')]
             }
         );
 
-        GreenReportPanel.currentPanel = new GreenReportPanel(panel, extensionUri, analysis, editor);
+        GreenReportPanel.currentPanel = new GreenReportPanel(panel, extensionUri, analysis);
     }
 
     public dispose() {
@@ -104,7 +152,7 @@ export class GreenReportPanel {
                 .tech-item { background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; text-align: center;}
                 .big-o { font-family: 'Courier New', monospace; font-weight: bold; }
                 
-                button { background-color: #2da44e; color: white; border: none; padding: 12px 20px; font-size: 1em; cursor: pointer; border-radius: 6px; width: 100%; font-weight: bold; transition: background 0.2s;}
+                button { background-color: #2da44e; color: white; border: none; padding: 12px 20px; font-size: 1em; cursor: pointer; border-radius: 6px; width: 100%; font-weight: bold; transition: background 0.2s; margin-bottom: 10px; }
                 button:hover { background-color: #2c974b; transform: translateY(-1px); }
                 
                 h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.1em;}
@@ -150,12 +198,27 @@ export class GreenReportPanel {
                 <p>${data.explanation}</p>
             </div>
 
-            <button onclick="applyFix()">Show Code Diff</button>
+            <button class="secondary" onclick="showDiff()">🔍 Show Diff</button>
+            <button onclick="applyFix()">✨ Apply Fix</button>
 
             <script>
                 const vscode = acquireVsCodeApi();
+                
+                // On passe le code optimisé au script pour qu'il puisse le renvoyer lors de l'applyFix
+                const optimizedCode = ${JSON.stringify(data.optimized_code)};
+
+                function showDiff() {
+                    vscode.postMessage({ 
+                        command: 'showDiff',
+                        code: optimizedCode
+                    });
+                }
+
                 function applyFix() {
-                    vscode.postMessage({ command: 'showDiff' });
+                    vscode.postMessage({ 
+                        command: 'applyFix',
+                        code: optimizedCode
+                    });
                 }
             </script>
         </body>

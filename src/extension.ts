@@ -54,8 +54,8 @@ export function activate(context: vscode.ExtensionContext) {
 			cancellable: false
 		}, async (progress) => {
 			try {
-				const analysisService = new GreenAnalysisService(apiKey);
-				const analysis = await analysisService.analyzeCode(selectedCode);
+				const analysisService = new GreenAnalysisService(apiKey, context);
+				const analysis = await analysisService.analyzeCode(selectedCode, editor, selection);
 
 				if (analysis.score_optimized > analysis.score_original) {
 					const pointsGained = analysis.score_optimized - analysis.score_original;
@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
 					sidebarProvider.refresh();
 				}
 
-				GreenReportPanel.createOrShow(context.extensionUri, analysis, editor);
+
 
 			} catch (error: any) {
 				console.error(error);
