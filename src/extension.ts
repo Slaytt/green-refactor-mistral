@@ -3,6 +3,7 @@ import { Mistral } from '@mistralai/mistralai';
 import { GreenRefactorSidebarProvider } from './GreenRefactorSidebar';
 import { GreenAnalysisService } from './GreenAnalysisService';
 import { GreenReportPanel } from './GreenReportPanel';
+import { GreenCodeActionProvider } from './GreenCodeActionProvider';
 
 
 
@@ -12,6 +13,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const sidebarProvider = new GreenRefactorSidebarProvider(context);
 	vscode.window.registerTreeDataProvider('greenRefactorView', sidebarProvider);
+
+	const codeActionProvider = vscode.languages.registerCodeActionsProvider(
+		'*',
+		new GreenCodeActionProvider(),
+		{
+			providedCodeActionKinds: [vscode.CodeActionKind.RefactorRewrite]
+		}
+	);
+	context.subscriptions.push(codeActionProvider);
+
 
 	let disposable = vscode.commands.registerCommand('green-refactor.start', async () => {
 
