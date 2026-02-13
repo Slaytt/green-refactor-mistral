@@ -19,22 +19,22 @@ export class GreenRefactorSidebarProvider implements vscode.TreeDataProvider<Gre
         if (element) {
             return Promise.resolve([]);
         } else {
-            // 1. Récupérer les stats stockées
+            // get stats
             const totalOptimizations = this.context.globalState.get<number>('ecostral.totalOptimizations') || 0;
-            const totalCo2Saved = this.context.globalState.get<number>('ecostral.totalCo2Saved') || 0; // Valeur arbitraire "points"
+            const totalCo2Saved = this.context.globalState.get<number>('ecostral.totalCo2Saved') || 0; // arbitrary value "points"
 
             return Promise.resolve([
-                // Section Titre
+                // Title section
                 new GreenItem(
                     "Launch Analysis 🚀",
                     vscode.TreeItemCollapsibleState.None,
                     { command: 'green-refactor.start', title: "Start" }
                 ),
 
-                // Section Séparateur
+                // Separator
                 new GreenItem("──────────────", vscode.TreeItemCollapsibleState.None),
 
-                // Section Stats
+                // Stats
                 new GreenItem(
                     "My Eco-Impact 🌍",
                     vscode.TreeItemCollapsibleState.Expanded

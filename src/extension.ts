@@ -23,7 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 	context.subscriptions.push(codeActionProvider);
 
-
 	let disposable = vscode.commands.registerCommand('green-refactor.start', async () => {
 
 		const editor = vscode.window.activeTextEditor;
@@ -80,7 +79,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(disposable);
 }
-
-
 
 export function deactivate() { }

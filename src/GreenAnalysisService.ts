@@ -64,13 +64,9 @@ export class GreenAnalysisService {
             let content = chatResponse.choices?.[0].message.content;
 
             if (typeof content === 'string') {
-                // 1. Robust cleanup (Markdown code blocks)
                 content = content.replace(/```json/g, '').replace(/```/g, '').trim();
-
-                // 2. Substring extraction (Find outermost braces)
                 const firstOpen = content.indexOf('{');
                 const lastClose = content.lastIndexOf('}');
-
                 if (firstOpen !== -1 && lastClose !== -1) {
                     content = content.substring(firstOpen, lastClose + 1);
                 }
@@ -80,11 +76,9 @@ export class GreenAnalysisService {
                 throw new Error("Mistral returned an empty response.");
             }
 
-            // 3. Parse JSON
             let analysis: any;
             try {
                 analysis = JSON.parse(content as string);
-
                 GreenReportPanel.createOrShow(
                     this.context.extensionUri,
                     analysis,
@@ -96,7 +90,6 @@ export class GreenAnalysisService {
                 throw new Error("Failed to parse Mistral response as JSON.");
             }
 
-            // 4. Validate Schema
             return this.validateAnalysis(analysis);
 
         } catch (error: any) {
@@ -119,7 +112,7 @@ export class GreenAnalysisService {
             throw new Error(`Invalid analysis format. Missing fields: ${missing.join(', ')}`);
         }
 
-        // Default type safety checks (optional but recommended)
+        // Default type safety checks (not usefull xd)
         return {
             score_original: Number(data.score_original) || 0,
             score_optimized: Number(data.score_optimized) || 0,
