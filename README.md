@@ -1,71 +1,54 @@
-# green-refactor-mistral README
+# Green Refactor (Mistral)
 
-This is the README for your extension "green-refactor-mistral". After writing up a brief description, we recommend including the following sections.
+**Green Refactor** is a powerful VS Code extension designed to help developers write more efficient, eco-friendly code. Powered by **Mistral AI**, it analyzes your code for algorithmic inefficiencies and resource waste, providing intelligent refactoring suggestions to reduce your software's carbon footprint.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+-   **Deep Eco-Analysis**: Uses the advanced `mistral-large` model to audit your code for performance bottlenecks and energy inefficiencies.
+-   **Algorithmic Complexity Check**: Automatically detects Big O complexity (e.g., identifying $O(N^2)$ loops that can be optimized to $O(N)$).
+-   **Green Score & Impact**: Get a "Green Score" before and after optimization, along with estimated resource gains (CPU, Memory, CO2).
+-   **One-Click Refactoring**: Receive ready-to-use optimized code snippets that maintain your business logic while improving performance.
+-   **Gamified Progress**: Track your contribution to the planet with a running total of "CO2 Saved" and successful optimizations.
+-   **Interactive Reports**: View detailed analysis summaries in a dedicated side panel.
 
-For example if there is an image subfolder under your extension project workspace:
+## ⚙️ How It Works
 
-\!\[feature X\]\(images/feature-x.png\)
+1.  **Select Code**: Highlight the code snippet you want to optimize in your editor.
+2.  **Run Analysis**: Right-click and choose **"🌿 Green Refactor (Mistral)"**, or use the command palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and search for `Green Refactor`.
+3.  **Review Report**: A detailed report panel will appear, showing:
+    -   Original vs. Optimized Score.
+    -   Complexity analysis (Before vs. After).
+    -   Plain English explanation of the improvements.
+    -   Refactored code block.
+4.  **Apply Fix**: Use the suggested code to instantly improve your application's efficiency.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## 🛠️ Getting Started
 
-## Requirements
+### 1. Installation
+Install the extension from the VS Code Marketplace (or load the `.vsix` file if installing manually).
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### 2. Configuration
+You need a valid **Mistral AI API Key** to use the analysis features.
 
-## Extension Settings
+1.  Go to the [Mistral AI Console](https://console.mistral.ai) to generate your API Key.
+2.  Open VS Code Settings (`Ctrl+,` / `Cmd+,`).
+3.  Search for `Green Refactor`.
+4.  Enter your key in the **Api Key** field (`greenRefactor.apiKey`).
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
+## 🔧 Extension Settings
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+*   `greenRefactor.apiKey`: Your Mistral AI API Key. Required for the extension to communicate with the Mistral API.
 
-## Known Issues
+## 📝 Release Notes
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+### 0.0.1
+-   Inital release of Green Refactor.
+-   Added support for algorithmic complexity analysis.
+-   Integrated Mistral Large for code optimization suggestions.
+-   Added Green Score and Gamification tracking.
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy coding greener!**
